@@ -29,6 +29,7 @@ function Stopwatch() {
 
   function handleStart() {
     setIsActive(true);
+    handleLap();
     startTime.current = Date.now() - time;
     intervalID.current = setInterval(() => {
       setTime(Date.now() - startTime.current);
