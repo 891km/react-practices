@@ -30,23 +30,39 @@ body {
   gap: 2rem;
 }
 
-#root * {
-  border: 1px solid pink;
+.sr-only {
+  position: absolute;
+  overflow: hidden;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
 }
+
+/* #root * {
+  border: 1px solid pink;
+} */
 
 ul,
 li {
   list-style: none;
 }
 
-/*  */
-.sw__display {
-  font-family: monospace;
-  width: 320px;
+button {
+  border: none;
+}
 
-  margin-top: 10rem;
+/*  */
+.sw__section {
+  border: 1px solid rgb(221, 221, 221);
+  width: 320px;
   padding: 2rem;
   border-radius: 1rem;
+}
+
+.sw__display {
+  font-family: monospace;
+  margin-top: 10rem;
 
   display: flex;
   justify-content: center;
@@ -84,6 +100,12 @@ li {
 
 .sw__lapList ul li {
   font-family: monospace;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sw__dashboard ul li {
   display: flex;
   justify-content: space-between;
   align-items: center;
