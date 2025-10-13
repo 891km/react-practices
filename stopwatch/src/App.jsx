@@ -217,23 +217,10 @@ function renderTime(passedTime) {
 }
 
 function Dashboard({ totalRecord }) {
-  // const averageRecord = totalRecord.current.length
-  //   ? totalRecord.current.reduce((acc, cur) => acc + cur, 0) /
-  //     totalRecord.current.length
-  //   : 0;
-
-  // const averageRecord = useMemo(() => {
-  //   if (totalRecord.current.length) {
-  //     return (
-  //       totalRecord.current.reduce((acc, cur) => acc + cur, 0) /
-  //       totalRecord.current.length
-  //     );
-  //   } else {
-  //     totalRecord.current.length;
-  //   }
-  // }, []);
-
-  const averageRecord = 0;
+  const averageRecord = totalRecord.current.length
+    ? totalRecord.current.reduce((acc, cur) => acc + cur, 0) /
+      totalRecord.current.length
+    : 0;
 
   const maxRecord = totalRecord.current.length
     ? Math.max(...totalRecord.current)
