@@ -27,7 +27,7 @@ function formatTime(time) {
 function StopWatch() {
   const [isActive, setIsActive] = useState(false);
 
-  const passedTime = useRef(0);
+  const [passedTime, setPassedTime] = useState(0);
   const startTime = useRef(0);
   const intervalID = useRef(null);
 
@@ -37,9 +37,9 @@ function StopWatch() {
   const handleStart = useCallback(() => {
     setIsActive(true);
 
-    startTime.current = Date.now() - passedTime.current;
+    startTime.current = Date.now() - passedTime;
     intervalID.current = setInterval(() => {
-      passedTime.current = Date.now() - startTime.current;
+      setPassedTime(Date.now() - startTime.current);
     }, 10);
   }, [passedTime]);
 
@@ -59,7 +59,7 @@ function StopWatch() {
 
   const handleLap = useCallback(() => {
     setLapList((prev) => {
-      const lap = passedTime.current - sumLapList.current;
+      const lap = passedTime - sumLapList.current;
       sumLapList.current += lap;
       return [{ id: Date.now(), time: lap }, ...prev];
     });
@@ -67,7 +67,7 @@ function StopWatch() {
 
   const handleReset = useCallback(() => {
     handleStop();
-    passedTime.current = 0;
+    setPassedTime(0);
     setLapList([]);
     sumLapList.current = 0;
   }, [handleStop]);
@@ -100,13 +100,11 @@ function StopWatch() {
 }
 
 function DisplayTime({ passedTime }) {
-  const time = renderTime(passedTime);
-
   useEffect(() => {
-    document.title = formatTime(time);
-  }, [time]);
+    document.title = formatTime(passedTime);
+  }, [passedTime]);
 
-  return <span className="sw__time">{formatTime(time)}</span>;
+  return <span className="sw__time">{formatTime(passedTime)}</span>;
 }
 
 function ControlButtons({ isActive, handleStartStop, handleLapReset }) {
@@ -136,7 +134,6 @@ function ControlButtons({ isActive, handleStartStop, handleLapReset }) {
         handleLapReset();
       }
     }
-
     window.addEventListener("keydown", handleKeyBoard);
 
     return () => {
@@ -165,16 +162,14 @@ function ControlButtons({ isActive, handleStartStop, handleLapReset }) {
 }
 
 function LapList({ lapList, passedTime, sumLapList }) {
-  const time = renderTime(passedTime);
-
   return (
     <div className="sw__lapList">
       <h3>랩 리스트</h3>
       <ul>
-        {time - sumLapList.current !== 0 && (
+        {passedTime - sumLapList.current !== 0 && (
           <li>
             <span>{lapList.length + 1}</span>
-            <span>{formatTime(time - sumLapList.current)}</span>
+            <span>{formatTime(passedTime - sumLapList.current)}</span>
           </li>
         )}
 
@@ -187,26 +182,6 @@ function LapList({ lapList, passedTime, sumLapList }) {
       </ul>
     </div>
   );
-}
-
-function renderTime(passedTime) {
-  const [time, setTime] = useState(0);
-
-  useEffect(() => {
-    let animationFrame;
-
-    function update() {
-      setTime(passedTime.current);
-      animationFrame = requestAnimationFrame(update);
-    }
-
-    animationFrame = requestAnimationFrame(update);
-    return () => {
-      cancelAnimationFrame(animationFrame);
-    };
-  }, [passedTime.current]);
-
-  return time;
 }
 
 export default App;
