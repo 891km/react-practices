@@ -21,6 +21,7 @@ function formatTime(time) {
     maximumFractionDigits: 0,
     roundingMode: "trunc",
   }).format(time / 1000 / 60);
+
   return `${minTime}:${secTime}`;
 }
 
@@ -59,22 +60,21 @@ function StopWatch() {
   }, [isActive, handleStop, handleStart]);
 
   const handleLap = useCallback(() => {
+    const lap = passedTime.current - sumLapList.current;
+    sumLapList.current += lap;
+
     setLapList((prev) => {
-      const lap = passedTime.current - sumLapList.current;
-      sumLapList.current += lap;
-      return [{ id: Date.now(), time: lap }, ...prev];
+      return [{ id: Date.now(), lap: lap, time: passedTime.current }, ...prev];
     });
   }, []);
 
   const handleReset = useCallback(() => {
-    if (passedTime.current > 0) {
-      totalRecord.current.push(passedTime.current);
-    }
-
     handleStop();
-    passedTime.current = 0;
+
     setLapList([]);
+    passedTime.current = 0;
     sumLapList.current = 0;
+    totalRecord.current = [];
   }, [handleStop]);
 
   const handleLapReset = useCallback(() => {
@@ -101,7 +101,7 @@ function StopWatch() {
         passedTime={passedTime}
         sumLapList={sumLapList}
       />
-      <Dashboard totalRecord={totalRecord} />
+      <Dashboard lapList={lapList} />
     </>
   );
 }
@@ -122,11 +122,11 @@ function ControlButtons({ isActive, handleStartStop, handleLapReset }) {
 
   useEffect(() => {
     if (isActive) {
-      btnStartStop.current.innerText = "정지";
-      btnLapReset.current.innerText = "랩";
+      btnStartStop.current.querySelector("span").innerText = "정지";
+      btnLapReset.current.querySelector("span").innerText = "랩";
     } else {
-      btnStartStop.current.innerText = "시작";
-      btnLapReset.current.innerText = "재설정";
+      btnStartStop.current.querySelector("span").innerText = "시작";
+      btnLapReset.current.querySelector("span").innerText = "재설정";
     }
   }, [isActive]);
 
@@ -158,14 +158,16 @@ function ControlButtons({ isActive, handleStartStop, handleLapReset }) {
         ref={btnStartStop}
         onClick={handleStartStop}
       >
-        시작
+        <span>시작</span>
+        <kbd>SpaceBar</kbd>
       </button>
       <button
         className="sw__btn sw__btn--lapReset"
         ref={btnLapReset}
         onClick={handleLapReset}
       >
-        랩
+        <span>랩</span>
+        <kbd>R</kbd>
       </button>
     </div>
   );
@@ -180,14 +182,16 @@ function LapList({ lapList, passedTime, sumLapList }) {
       <ul>
         {time - sumLapList.current !== 0 && (
           <li>
-            <span>{lapList.length + 1}</span>
+            <span>lap {lapList.length + 1}</span>
             <span>{formatTime(time - sumLapList.current)}</span>
+            <span>{formatTime(passedTime.current)}</span>
           </li>
         )}
 
         {lapList.map((item, index) => (
           <li key={item.id}>
-            <span>{lapList.length - index}</span>
+            <span className="lapIndex">lap {lapList.length - index}</span>
+            <span>{formatTime(item.lap)}</span>
             <span>{formatTime(item.time)}</span>
           </li>
         ))}
@@ -216,30 +220,29 @@ function renderTime(passedTime) {
   return time;
 }
 
-function Dashboard({ totalRecord }) {
-  const averageRecord = totalRecord.current.length
-    ? totalRecord.current.reduce((acc, cur) => acc + cur, 0) /
-      totalRecord.current.length
+function Dashboard({ lapList }) {
+  const averageLap = lapList.length
+    ? lapList.reduce((acc, cur) => acc + cur.lap, 0) / lapList.length
     : 0;
 
-  const maxRecord = totalRecord.current.length
-    ? Math.max(...totalRecord.current)
-    : 0;
+  const wholeLap = lapList.map((item) => item.lap);
+  const minLap = lapList.length ? Math.min(...wholeLap) : 0;
+  const maxLap = lapList.length ? Math.max(...wholeLap) : 0;
   return (
     <section className="sw__section sw__dashboard">
       <h3>통계 대시보드</h3>
       <ul>
         <li>
-          <span>총 사용 횟수</span>
-          <span>{totalRecord.current.length}</span>
+          <span>평균 측정 시간</span>
+          <span>{formatTime(averageLap)}</span>
         </li>
         <li>
-          <span>평균 측정 시간</span>
-          <span>{formatTime(averageRecord)}</span>
+          <span>최단 기록</span>
+          <span>{formatTime(minLap)}</span>
         </li>
         <li>
           <span>최장 기록</span>
-          <span>{formatTime(maxRecord)}</span>
+          <span>{formatTime(maxLap)}</span>
         </li>
       </ul>
     </section>
