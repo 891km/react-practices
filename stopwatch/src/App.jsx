@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import CanvasThree from "./Components/CanvasThree.jsx";
 import "./App.style.css";
 
 function App() {
   return (
     <>
       <StopWatch />
+      <CanvasThree />
     </>
   );
 }
