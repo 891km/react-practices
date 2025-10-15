@@ -55,7 +55,10 @@ export default function CanvasThree() {
     // Mesh
     const gltfLoader = new GLTFLoader();
     // let mixer;
-    const modelPath = canvas.dataset.model;
+    // const modelPath = canvas.dataset.model;
+    const modelPath =
+      "./assets/ddg.glb" ||
+      "https://891km.github.io/react-practices/assets/ddg.glb";
 
     gltfLoader.load(modelPath, (glb) => {
       const character = glb.scene;
@@ -146,7 +149,7 @@ export default function CanvasThree() {
     <canvas
       ref={canvasRef}
       id="canvas"
-      data-model="/public/assets/ddg.glb"
+      // data-model="./public/assets/ddg.glb"
       data-engine="three.js r174"
       style={{ width: "260px", height: "260px", touchAction: "none" }}
     ></canvas>
