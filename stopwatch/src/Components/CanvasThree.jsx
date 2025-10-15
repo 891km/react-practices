@@ -146,7 +146,7 @@ export default function CanvasThree() {
     <canvas
       ref={canvasRef}
       id="canvas"
-      data-model="./public/assets/ddg.glb"
+      data-model="/public/assets/ddg.glb"
       data-engine="three.js r174"
       style={{ width: "260px", height: "260px", touchAction: "none" }}
     ></canvas>
