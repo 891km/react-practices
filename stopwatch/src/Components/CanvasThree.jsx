@@ -57,8 +57,7 @@ export default function CanvasThree() {
     // let mixer;
     // const modelPath = canvas.dataset.model;
     const modelPath =
-      "./assets/ddg.glb" ||
-      "https://891km.github.io/react-practices/assets/ddg.glb";
+      "./assets/ddg.glb" || "${process.env.PUBLIC_URL}/assets/ddg.glb";
 
     gltfLoader.load(modelPath, (glb) => {
       const character = glb.scene;
