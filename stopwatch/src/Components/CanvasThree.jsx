@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
-export default function CanvasThree() {
+export default function CanvasThree({ curKey }) {
   const canvasRef = useRef(null);
   const mixerRef = useRef(null);
   const characterRef = useRef(null);
@@ -54,20 +54,17 @@ export default function CanvasThree() {
 
     // Mesh
     const gltfLoader = new GLTFLoader();
-    // let mixer;
-    // const modelPath = canvas.dataset.model;
     const modelPath =
-      "./assets/ddg.glb" || "${process.env.PUBLIC_URL}/assets/ddg.glb";
+      "./assets/ddg.glb" || `${process.env.PUBLIC_URL}/assets/ddg.glb`;
 
     gltfLoader.load(modelPath, (glb) => {
-      const character = glb.scene;
-      characterRef.current = character;
+      characterRef.current = glb.scene;
 
       // actions
-      const mixer = new THREE.AnimationMixer(character);
+      const mixer = new THREE.AnimationMixer(characterRef.current);
       mixerRef.current = mixer;
 
-      character.traverse((child) => {
+      characterRef.current.traverse((child) => {
         if (child.isMesh) {
           child.userData.actions = glb.animations.map((clip) =>
             mixer.clipAction(clip)
@@ -77,40 +74,9 @@ export default function CanvasThree() {
           child.userData.actions[0].timeScale = 0.5;
         }
       });
-      scene.add(character);
-      camera.lookAt(character.position);
+      scene.add(characterRef.current);
+      camera.lookAt(characterRef.current.position);
     });
-
-    function playAction(mesh) {
-      if (mesh) {
-        const mixer = mixerRef.current;
-        const action0 = mesh.userData.actions[0];
-        const action1 = mesh.userData.actions[1];
-
-        action0.fadeOut(0.5);
-        action1.setLoop(THREE.LoopOnce, 1);
-        action1.reset().fadeIn(0.5).play();
-        action1.clampWhenFinished = true;
-        action1.fadeIn(0.5).play();
-
-        mixer.addEventListener("finished", function onFinish(e) {
-          if (e.action === action1) {
-            action1.fadeOut(0.5);
-            action0.reset().fadeIn(0.5).play();
-            mixer.removeEventListener("finished", onFinish);
-          }
-        });
-      }
-    }
-
-    renderer.setAnimationLoop(animate);
-    const clock = new THREE.Clock();
-    function animate() {
-      const delta = clock.getDelta();
-      if (mixerRef.current) mixerRef.current.update(delta);
-      controls.update();
-      renderer.render(scene, camera);
-    }
 
     window.addEventListener("resize", setSize);
     function setSize() {
@@ -128,28 +94,67 @@ export default function CanvasThree() {
       renderer.render(scene, camera);
     }
 
-    window.addEventListener("keydown", (event) => {
-      if (event.code === "KeyZ") {
-        console.log("눌림");
-        const character = characterRef.current;
-        if (!character) return;
+    // window.addEventListener("keydown", handleKeydown);
 
-        playAction(character);
-      }
-    });
+    // function handleKeydown(e) {
+    //   if (e.code === "KeyZ") {
+    //     playAction(characterRef.current);
+    //   }
+    // }
+
+    // update
+    renderer.setAnimationLoop(animate);
+    const clock = new THREE.Clock();
+    function animate() {
+      const delta = clock.getDelta();
+      if (mixerRef.current) mixerRef.current.update(delta);
+      controls.update();
+      renderer.render(scene, camera);
+    }
 
     return () => {
       window.removeEventListener("resize", setSize);
+      // window.removeEventListener("keydown", handleKeydown);
       renderer.dispose();
     };
   }, []);
+
+  useEffect(() => {
+    if (curKey === "Space") {
+      console.log(curKey);
+      playAction(characterRef.current);
+    }
+  }, [curKey]);
+
+  function playAction(mesh) {
+    if (!mesh) return;
+
+    mesh.traverse((child) => {
+      if (child.isMesh) {
+        const actions = child.userData.actions;
+
+        actions[0].fadeOut(0.5);
+        actions[1].setLoop(THREE.LoopOnce, 1);
+        actions[1].reset().fadeIn(0.5).play();
+        actions[1].clampWhenFinished = true;
+        actions[1].fadeIn(0.5).play();
+
+        mixerRef.current.addEventListener("finished", function onFinish(e) {
+          if (e.action === actions[1]) {
+            actions[1].fadeOut(0.5);
+            actions[0].reset().fadeIn(0.5).play();
+
+            mixerRef.current.removeEventListener("finished", onFinish);
+          }
+        });
+      }
+    });
+  }
 
   return (
     <canvas
       ref={canvasRef}
       id="canvas"
-      // data-model="./public/assets/ddg.glb"
-      data-engine="three.js r174"
       style={{ width: "260px", height: "260px", touchAction: "none" }}
     ></canvas>
   );
