@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 function App() {
   const [curKey, setCurKey] = useState(null);
+  const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -28,8 +29,12 @@ function App() {
 
   return (
     <>
-      <StopWatch curKey={curKey} />
-      <CanvasThree curKey={curKey} />
+      <StopWatch
+        isActive={isActive}
+        setIsActive={setIsActive}
+        curKey={curKey}
+      />
+      <CanvasThree isActive={isActive} />
     </>
   );
 }

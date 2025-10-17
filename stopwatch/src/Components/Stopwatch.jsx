@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 
-function StopWatch({ curKey }) {
-  const [isActive, setIsActive] = useState(false);
+function StopWatch({ isActive, setIsActive, curKey }) {
   const totalRecord = useRef([]);
 
   const passedTime = useRef(0);
@@ -53,7 +52,6 @@ function StopWatch({ curKey }) {
   }, [isActive, handleStop, handleStart]);
 
   const handleLapReset = useCallback(() => {
-    btnLapReset.current.focus();
     if (isActive) {
       handleLap();
     } else {

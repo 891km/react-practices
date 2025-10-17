@@ -3,10 +3,11 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
-export default function CanvasThree({ curKey }) {
+export default function CanvasThree({ isActive, curKey }) {
   const canvasRef = useRef(null);
   const mixerRef = useRef(null);
   const characterRef = useRef(null);
+  const isActiveRef = useRef(isActive);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -94,14 +95,6 @@ export default function CanvasThree({ curKey }) {
       renderer.render(scene, camera);
     }
 
-    // window.addEventListener("keydown", handleKeydown);
-
-    // function handleKeydown(e) {
-    //   if (e.code === "KeyZ") {
-    //     playAction(characterRef.current);
-    //   }
-    // }
-
     // update
     renderer.setAnimationLoop(animate);
     const clock = new THREE.Clock();
@@ -114,17 +107,14 @@ export default function CanvasThree({ curKey }) {
 
     return () => {
       window.removeEventListener("resize", setSize);
-      // window.removeEventListener("keydown", handleKeydown);
       renderer.dispose();
     };
   }, []);
 
   useEffect(() => {
-    if (curKey === "Space") {
-      console.log(curKey);
-      playAction(characterRef.current);
-    }
-  }, [curKey]);
+    isActiveRef.current = isActive;
+    playAction(characterRef.current);
+  }, [isActive]);
 
   function playAction(mesh) {
     if (!mesh) return;
@@ -132,21 +122,31 @@ export default function CanvasThree({ curKey }) {
     mesh.traverse((child) => {
       if (child.isMesh) {
         const actions = child.userData.actions;
+        const defualtAction = actions[0];
+        const activeAction = actions[1];
 
-        actions[0].fadeOut(0.5);
-        actions[1].setLoop(THREE.LoopOnce, 1);
-        actions[1].reset().fadeIn(0.5).play();
-        actions[1].clampWhenFinished = true;
-        actions[1].fadeIn(0.5).play();
+        if (isActiveRef.current) {
+          defualtAction.fadeOut(0.5);
+          activeAction.setLoop(THREE.LoopOnce, 1);
+          activeAction.reset().fadeIn(0.5).play();
+          activeAction.clampWhenFinished = true;
 
-        mixerRef.current.addEventListener("finished", function onFinish(e) {
-          if (e.action === actions[1]) {
-            actions[1].fadeOut(0.5);
-            actions[0].reset().fadeIn(0.5).play();
+          setTimeout(() => {
+            activeAction.paused = true;
+          }, 1000);
+        } else {
+          activeAction.paused = false;
+        }
 
+        function onFinish(e) {
+          console.log("onFinish");
+          if (e.action === activeAction && !isActiveRef.current) {
+            activeAction.fadeOut(0.5);
+            defualtAction.reset().fadeIn(0.5).play();
             mixerRef.current.removeEventListener("finished", onFinish);
           }
-        });
+        }
+        mixerRef.current.addEventListener("finished", onFinish);
       }
     });
   }
