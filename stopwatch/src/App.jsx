@@ -1,7 +1,7 @@
 import StopWatch from "./Components/Stopwatch.jsx";
 import CanvasThree from "./Components/CanvasThree.jsx";
 import "./App.style.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
   const [curKey, setCurKey] = useState(null);
@@ -29,12 +29,12 @@ function App() {
 
   return (
     <>
+      <CanvasThree isActive={isActive} />
       <StopWatch
         isActive={isActive}
         setIsActive={setIsActive}
         curKey={curKey}
       />
-      <CanvasThree isActive={isActive} />
     </>
   );
 }

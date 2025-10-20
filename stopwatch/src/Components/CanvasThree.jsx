@@ -81,8 +81,12 @@ export default function CanvasThree({ isActive, curKey }) {
 
     window.addEventListener("resize", setSize);
     function setSize() {
-      const width = canvas.clientWidth;
-      const height = canvas.clientHeight;
+      // const width = canvas.clientWidth;
+      // const height = canvas.clientHeight;
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+
       const aspect = width / height;
 
       camera.left = (-frustumSize * aspect) / 2;
@@ -155,7 +159,7 @@ export default function CanvasThree({ isActive, curKey }) {
     <canvas
       ref={canvasRef}
       id="canvas"
-      style={{ width: "260px", height: "260px", touchAction: "none" }}
+      style={{ touchAction: "none" }}
     ></canvas>
   );
 }

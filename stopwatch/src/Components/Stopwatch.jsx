@@ -89,7 +89,7 @@ function DisplayTime({ passedTime }) {
     document.title = formatTime(time);
   }, [time]);
 
-  return <span className="sw__time">{formatTime(time)}</span>;
+  return <span className="sw__time time">{formatTime(time)}</span>;
 }
 
 function ControlButtons({ isActive, handleStartStop, handleLapReset, curKey }) {
@@ -112,12 +112,16 @@ function ControlButtons({ isActive, handleStartStop, handleLapReset, curKey }) {
 
   useEffect(() => {
     if (curKey === "Space") {
-      //   btnStartStop.current.focus();
+      btnStartStop.current.classList.add("keydown");
       handleStartStop();
+    } else {
+      btnStartStop.current.classList.remove("keydown");
     }
     if (curKey === "KeyR") {
-      //   btnLapReset.current.focus();
+      btnLapReset.current.classList.add("keydown");
       handleLapReset();
+    } else {
+      btnLapReset.current.classList.remove("keydown");
     }
   }, [curKey]);
 
@@ -153,16 +157,18 @@ function LapList({ lapList, passedTime, sumLapList }) {
         {time - sumLapList.current !== 0 && (
           <li>
             <span>lap {lapList.length + 1}</span>
-            <span>{formatTime(time - sumLapList.current)}</span>
-            <span>{formatTime(passedTime.current)}</span>
+            <span className="time">
+              {formatTime(time - sumLapList.current)}
+            </span>
+            <span className="time">{formatTime(passedTime.current)}</span>
           </li>
         )}
 
         {lapList.map((item, index) => (
           <li key={item.id}>
             <span className="lapIndex">lap {lapList.length - index}</span>
-            <span>{formatTime(item.lap)}</span>
-            <span>{formatTime(item.time)}</span>
+            <span className="time">{formatTime(item.lap)}</span>
+            <span className="time">{formatTime(item.time)}</span>
           </li>
         ))}
       </ul>
@@ -184,15 +190,15 @@ function Dashboard({ lapList }) {
       <ul>
         <li>
           <span>평균 측정 시간</span>
-          <span>{formatTime(averageLap)}</span>
+          <span className="time">{formatTime(averageLap)}</span>
         </li>
         <li>
           <span>최단 기록</span>
-          <span>{formatTime(minLap)}</span>
+          <span className="time">{formatTime(minLap)}</span>
         </li>
         <li>
           <span>최장 기록</span>
-          <span>{formatTime(maxLap)}</span>
+          <span className="time">{formatTime(maxLap)}</span>
         </li>
       </ul>
     </section>
