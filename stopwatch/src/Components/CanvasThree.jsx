@@ -143,7 +143,6 @@ export default function CanvasThree({ isActive, curKey }) {
         }
 
         function onFinish(e) {
-          console.log("onFinish");
           if (e.action === activeAction && !isActiveRef.current) {
             activeAction.fadeOut(0.5);
             defualtAction.reset().fadeIn(0.5).play();
